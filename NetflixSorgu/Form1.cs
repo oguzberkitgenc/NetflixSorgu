@@ -1,10 +1,6 @@
-﻿using Microsoft.Web.WebView2.Core;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Net.Http;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Web.WebView2.WinForms;
 
 namespace NetflixSorgu
 {
@@ -13,69 +9,58 @@ namespace NetflixSorgu
         public Form1()
         {
             InitializeComponent();
-            InitializeBrowser("https://www.netflix.com/tr/redeem");
-            IpAl();
+            InitBrowser();
         }
-      
-        static HttpClient client = new HttpClient();
-        string ipAddress;
-        string countryName;
-        private async Task IpAl()
+        public async void InitBrowser()
         {
-            try
-            {
-                //Ip adresini web üzerinden çek
-                ipAddress = await client.GetStringAsync("http://icanhazip.com");
-                ipAddress = ipAddress.Trim();
-
-                // Ip konumlarımda servisine sorgu yap
-                string apiUrl = $"http://ip-api.com/json/{ipAddress}";
-
-                string jsonResult = await client.GetStringAsync(apiUrl);
-
-                //JSON verisini ayrıştır
-                JObject resultObject = JObject.Parse(jsonResult);
-
-                //Ülke Bilgisini Al
-                countryName = (string)resultObject["country"];
-
-                //sonucu yazdır
-                //  lblIp.Invoke((MethodInvoker)(() => lblIp.Text = ipAddress + " " + countryName));
-                lblIp.Text = ipAddress + " " + countryName;
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            await initialized();
+            webView21.CoreWebView2.Navigate("https://www.netflix.com/tr/redeem");
         }
-
-        private void InitializeBrowser(string webAdress)
+        Islemler islemler = new Islemler();
+        private async Task initialized()
         {
-            webView21.Source = new Uri(webAdress);
+            await webView21.EnsureCoreWebView2Async(null);
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
+            islemler.KodlariEkle(this);
+        }
 
-        }
-        private void btnNetflix_Click(object sender, EventArgs e)
-        {
-            InitializeBrowser("https://www.netflix.com/tr/redeem");
-        }
        
         private async void btnIp_Click(object sender, EventArgs e)
         {
             lblIp.Text = "IP Sorgulanıyor ....";
-            IpAl();
+            await islemler.IpAl(this);
         }
-        private void btnGoogle_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            InitializeBrowser("https://www.google.com");
+            int i = 0;
+            MouseOlaylari.SolMouseClick(375, 375);
+            // listKodlar listbox'ındaki değeri alır
+            string ilkSatir = listKodlar.Items[i].ToString();
+            // Her bir karakteri tek tek yazdırır
+            foreach (char karakter in ilkSatir)
+            {
+                SendKeys.Send(karakter.ToString());
+            }
+            // İşlem tamamlandıktan sonra listKodlar listesinden tıklanan öğeyi kaldırır
+            listKodlar.Items.RemoveAt(i);
+
+            // En son sorgula butonuna basar
+            MouseOlaylari.SolMouseClick(365, 450);
+
         }
-        private  void btnCerez_Click(object sender, EventArgs e)
+
+        private void btnKod_Click(object sender, EventArgs e)
         {
-         
+            // Butona tıklama işlemini gerçekleştir
+            webView21.ExecuteScriptAsync("document.getElementsByClassName('btn btn-red btn-large')[0].click();");
+        }
+
+
+        private void btnSorgulamaSayfasi_Click(object sender, EventArgs e)
+        {
+            InitBrowser();
         }
     }
 }
