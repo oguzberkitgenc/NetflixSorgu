@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -25,17 +26,23 @@ namespace NetflixSorgu
         {
             islemler.KodlariEkle(this);
         }
-
-       
         private async void btnIp_Click(object sender, EventArgs e)
         {
             lblIp.Text = "IP Sorgulanıyor ....";
             await islemler.IpAl(this);
         }
+        int i = 0;
+        bool sil = false;
         private void button1_Click(object sender, EventArgs e)
         {
-            int i = 0;
             MouseOlaylari.SolMouseClick(375, 375);
+
+            if (sil == true)
+            {
+                SendKeys.Send("^a");
+                SendKeys.Send("{DEL}");
+            }
+
             // listKodlar listbox'ındaki değeri alır
             string ilkSatir = listKodlar.Items[i].ToString();
             // Her bir karakteri tek tek yazdırır
@@ -49,6 +56,8 @@ namespace NetflixSorgu
             // En son sorgula butonuna basar
             MouseOlaylari.SolMouseClick(365, 450);
 
+            i++;
+            sil = true;
         }
 
         private void btnKod_Click(object sender, EventArgs e)
@@ -56,8 +65,6 @@ namespace NetflixSorgu
             // Butona tıklama işlemini gerçekleştir
             webView21.ExecuteScriptAsync("document.getElementsByClassName('btn btn-red btn-large')[0].click();");
         }
-
-
         private void btnSorgulamaSayfasi_Click(object sender, EventArgs e)
         {
             InitBrowser();
